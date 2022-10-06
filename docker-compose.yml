@@ -1,0 +1,85 @@
+version: '3'
+
+networks:
+  lnmp:
+    external: false
+
+services:
+  # web server 网络服务器
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: always
+    networks:
+      - lnmp
+    ports:
+      - '80:80'
+      - '8080:8080'
+      - '443:443'
+    volumes:
+      # HTML 项目目录， 存放 PHP 代码文件
+      - ./html:/usr/share/nginx/html
+      # nginx 配置项
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/config/:/etc/nginx/config/:ro
+      - ./nginx/conf.d/:/etc/nginx/conf.d/:ro
+      - ./nginx/logs/:/var/log/nginx/
+      - ./nginx/ca:/etc/nginx/ca:ro
+    links:
+      - php:__DOCKER_PHP_FPM__
+
+  # php-fpm PHP 运行环境
+  php:
+    build: ./php/alpine
+    container_name: php
+    restart: always
+    networks:
+      - lnmp
+    ports:
+      - '9000:9000'
+    volumes:
+      # HTML 项目目录， 存放 PHP 代码文件
+      - ./html:/usr/share/nginx/html
+      # php.ini 配置文件
+      - ./php/php.ini:/usr/local/etc/php/php.ini
+
+  # database 数据库
+  mysql:
+    # image: mysql:5.5.56
+    image: mysql:5.7.28
+    container_name: mysql
+    networks:
+      - lnmp
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_PASSWORD=
+    restart: always
+
+  # redis 缓存及简易队列
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    networks:
+      - lnmp
+    ports:
+      - '6379:6379'
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis/data/:/data/
+
+  # 基于 websocket 和谷歌浏览器插件的代码调试工具
+  # 容器为 nodejs 环境
+  socketlog:
+    build: ./socketlog
+    container_name: socketlog
+    restart: always
+    networks:
+      - lnmp
+    ports:
+      - '1116:1116'
+      - '1229:1229'

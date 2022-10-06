@@ -1,0 +1,6 @@
+!.gitkeep
+
+nginx/logs
+mysql
+redis/data
+elasticsearch/data
