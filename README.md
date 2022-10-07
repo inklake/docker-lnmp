@@ -31,6 +31,7 @@ dockr-lnmp
 │  ├─ config                             # Nginx 公用配置目录
 │  │  ├─ common_rewrite.conf             # 公用 PHP 重定向配置
 │  │  ├─ common_server.conf              # 公用 PHP 服务器配置
+│  │  └─ common_ssl.conf                 # 公用 SSL 配置文件
 │  ├─ logs                               # Nginx 及站点日志存放目录
 │  ├─ php                                # PHP 镜像创建及配置目录
 │  │  ├─ alpine                          # PHP alpine 版本镜像编译目录
